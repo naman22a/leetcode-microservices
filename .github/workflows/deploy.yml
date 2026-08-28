@@ -1,4 +1,5 @@
 name: Deploy
+
 on:
   workflow_call:
   workflow_dispatch:
@@ -6,6 +7,7 @@ on:
 jobs:
   deploy:
     runs-on: self-hosted
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -16,17 +18,34 @@ jobs:
         run: |
           set -e
 
-          echo "Pulling latest images..."
-          kubectl set image deployment/api-gateway-deployment api-gateway-backend=$DOCKER_USERNAME/leetcode-api-gateway:latest -n oj
-          kubectl set image deployment/auth-deployment auth-backend=$DOCKER_USERNAME/leetcode-auth-service:latest -n oj
-          kubectl set image deployment/companies-deployment companies-backend=$DOCKER_USERNAME/leetcode-companies-service:latest -n oj
-          kubectl set image deployment/execution-deployment execution-backend=$DOCKER_USERNAME/leetcode-execution-service:latest -n oj
-          kubectl set image deployment/problems-deployment problems-backend=$DOCKER_USERNAME/leetcode-problems-service:latest -n oj
-          kubectl set image deployment/submissions-deployment submissions-backend=$DOCKER_USERNAME/leetcode-submissions-service:latest -n oj
-          kubectl set image deployment/tags-deployment tags-backend=$DOCKER_USERNAME/leetcode-tags-service:latest -n oj
-          kubectl set image deployment/users-deployment users-backend=$DOCKER_USERNAME/leetcode-users-service:latest -n oj
+          echo "Updating service images..."
+
+          kubectl set image deployment/api-gateway-deployment \
+            api-gateway-backend=$DOCKER_USERNAME/leetcode-api-gateway:latest -n oj
+
+          kubectl set image deployment/auth-deployment \
+            auth-backend=$DOCKER_USERNAME/leetcode-auth-service:latest -n oj
+
+          kubectl set image deployment/companies-deployment \
+            companies-backend=$DOCKER_USERNAME/leetcode-companies-service:latest -n oj
+
+          kubectl set image deployment/execution-deployment \
+            execution-backend=$DOCKER_USERNAME/leetcode-execution-service:latest -n oj
+
+          kubectl set image deployment/problems-deployment \
+            problems-backend=$DOCKER_USERNAME/leetcode-problems-service:latest -n oj
+
+          kubectl set image deployment/submissions-deployment \
+            submissions-backend=$DOCKER_USERNAME/leetcode-submissions-service:latest -n oj
+
+          kubectl set image deployment/tags-deployment \
+            tags-backend=$DOCKER_USERNAME/leetcode-tags-service:latest -n oj
+
+          kubectl set image deployment/users-deployment \
+            users-backend=$DOCKER_USERNAME/leetcode-users-service:latest -n oj
 
           echo "Waiting for rollouts..."
+
           kubectl rollout status deployment/api-gateway-deployment -n oj
           kubectl rollout status deployment/auth-deployment -n oj
           kubectl rollout status deployment/client-deployment -n oj
@@ -37,22 +56,40 @@ jobs:
           kubectl rollout status deployment/tags-deployment -n oj
           kubectl rollout status deployment/users-deployment -n oj
 
+      - name: Load Runner Images
+        run: |
+          set -e
+
+          echo "Loading OJ runner images..."
+
+          docker save \
+            gcc:latest \
+            python:3.9 \
+            node:18 \
+            eclipse-temurin:17-jdk \
+            golang:1.20 \
+            rust:1.69 \
+            mcr.microsoft.com/dotnet/sdk:7.0 \
+            swift:5.8 \
+            php:8.2 \
+            dart:3.0 \
+            r-base:latest \
+            perl:5.36 \
+            haskell:9.6 \
+            -o /tmp/oj-runners.tar
+
+          sudo k3s ctr images import /tmp/oj-runners.tar
+
+          rm -f /tmp/oj-runners.tar
+
+          echo "Runner images loaded:"
+          sudo k3s ctr images list
+
+      - name: Cleanup unused images
+        run: |
           echo "Cleaning unused images..."
           sudo k3s crictl rmi --prune
 
-          echo "Pulling All images on node..."
-          sudo k3s ctr images pull docker.io/library/gcc:latest
-          sudo k3s ctr images pull docker.io/library/python:3.9
-          sudo k3s ctr images pull docker.io/library/node:18
-          sudo k3s ctr images pull docker.io/library/eclipse-temurin:17-jdk
-          sudo k3s ctr images pull docker.io/library/golang:1.20
-          sudo k3s ctr images pull docker.io/library/rust:1.69
-          sudo k3s ctr images pull docker.io/library/mcr.microsoft.com/dotnet/sdk:7.0
-          sudo k3s ctr images pull docker.io/library/swift:5.8
-          sudo k3s ctr images pull docker.io/library/php:8.2
-          sudo k3s ctr images pull docker.io/library/dart:3.0
-          sudo k3s ctr images pull docker.io/library/r-base:latest
-          sudo k3s ctr images pull docker.io/library/perl:5.36
-          sudo k3s ctr images pull docker.io/library/haskell:9.6
-
+      - name: Deployment Complete
+        run: |
           echo "Deployment completed successfully!"
