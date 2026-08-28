@@ -85,11 +85,6 @@ jobs:
           echo "Runner images loaded:"
           sudo k3s ctr images list
 
-      - name: Cleanup unused images
-        run: |
-          echo "Cleaning unused images..."
-          sudo k3s crictl rmi --prune
-
       - name: Deployment Complete
         run: |
           echo "Deployment completed successfully!"
