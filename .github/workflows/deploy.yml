@@ -40,7 +40,19 @@ jobs:
           echo "Cleaning unused images..."
           sudo k3s crictl rmi --prune
 
-          echo "Pulling GCC image on node..."
+          echo "Pulling All images on node..."
           sudo k3s ctr images pull docker.io/library/gcc:latest
+          sudo k3s ctr images pull docker.io/library/python:3.9
+          sudo k3s ctr images pull docker.io/library/node:18
+          sudo k3s ctr images pull docker.io/library/eclipse-temurin:17-jdk
+          sudo k3s ctr images pull docker.io/library/golang:1.20
+          sudo k3s ctr images pull docker.io/library/rust:1.69
+          sudo k3s ctr images pull docker.io/library/mcr.microsoft.com/dotnet/sdk:7.0
+          sudo k3s ctr images pull docker.io/library/swift:5.8
+          sudo k3s ctr images pull docker.io/library/php:8.2
+          sudo k3s ctr images pull docker.io/library/dart:3.0
+          sudo k3s ctr images pull docker.io/library/r-base:latest
+          sudo k3s ctr images pull docker.io/library/perl:5.36
+          sudo k3s ctr images pull docker.io/library/haskell:9.6
 
           echo "Deployment completed successfully!"
