@@ -67,15 +67,6 @@ jobs:
             python:3.9 \
             node:18 \
             eclipse-temurin:17-jdk \
-            golang:1.20 \
-            rust:1.69 \
-            mcr.microsoft.com/dotnet/sdk:7.0 \
-            swift:5.8 \
-            php:8.2 \
-            dart:3.0 \
-            r-base:latest \
-            perl:5.36 \
-            haskell:9.6 \
             -o /tmp/oj-runners.tar
 
           sudo k3s ctr images import /tmp/oj-runners.tar
