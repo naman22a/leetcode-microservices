@@ -57,7 +57,7 @@ export const LANG_CONFIGS: Record<
     { image: string; compile?: string[]; run: string[]; defaultCode?: string }
 > = {
     cpp: {
-        image: 'gcc:latest',
+        image: 'gcc:15',
         compile: ['g++', 'solution.cpp', '-o', 'solution'],
         run: ['./solution'],
         defaultCode: `#include <iostream>

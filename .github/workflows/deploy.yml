@@ -63,7 +63,7 @@ jobs:
           echo "Loading OJ runner images..."
 
           docker save \
-            gcc:latest \
+            gcc:15 \
             python:3.9 \
             node:18 \
             eclipse-temurin:17-jdk \

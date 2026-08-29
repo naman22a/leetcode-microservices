@@ -19,7 +19,10 @@ echo
 echo "[0/8] Loading execution images into Kind..."
 
 docker context use default
-docker pull gcc:latest
+docker pull gcc:15
+docker pull python:3.9
+docker pull node:18
+docker pull eclipse-temurin:17-jdk
 
 for node in kind-control-plane kind-worker kind-worker2
 do
