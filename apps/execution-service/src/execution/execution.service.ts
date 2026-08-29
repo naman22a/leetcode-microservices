@@ -293,7 +293,7 @@ LEETCODE_EOF
             if (succeeded || failed) {
                 // Fetch logs from the completed/failed pod
                 const output = await this.getJobLogs(jobName, namespace);
-
+                console.log('Output: \n', output);
                 if (failed) {
                     const isCompileError = output.toLowerCase().includes('error');
                     return {
