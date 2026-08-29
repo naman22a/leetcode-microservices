@@ -107,8 +107,8 @@ LEETCODE_EOF
                                         command: ['sh', '-c', script],
                                         workingDir: '/workspace',
                                         resources: {
-                                            limits: { cpu: '500m', memory: '128Mi' },
-                                            requests: { cpu: '100m', memory: '64Mi' },
+                                            limits: { cpu: '1', memory: '512Mi' },
+                                            requests: { cpu: '100m', memory: '128Mi' },
                                         },
                                         securityContext: {
                                             runAsNonRoot: false,
