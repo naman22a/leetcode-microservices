@@ -24,13 +24,10 @@ docker pull python:3.9
 docker pull node:18
 docker pull eclipse-temurin:17-jdk
 
-for node in kind-control-plane kind-worker kind-worker2
-do
-  docker exec "$node" sctr -n k8s.io images pull docker.io/library/gcc:15
-  docker exec "$node" sctr -n k8s.io images pull docker.io/library/python:3.9
-  docker exec "$node" sctr -n k8s.io images pull docker.io/library/node:18
-  docker exec "$node" sctr -n k8s.io images pull docker.io/library/eclipse-temurin:17-jdk
-done
+docker exec kind-control-plane ctr -n k8s.io images pull docker.io/library/gcc:15
+docker exec kind-control-plane ctr -n k8s.io images pull docker.io/library/python:3.9
+docker exec kind-control-plane ctr -n k8s.io images pull docker.io/library/node:18
+docker exec kind-control-plane ctr -n k8s.io images pull docker.io/library/eclipse-temurin:17-jdk
 
 echo
 echo "[1/7] Namespace, Secrets, RBAC"
