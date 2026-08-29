@@ -5,47 +5,30 @@ set -Eeuo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 K8S_DIR="$ROOT_DIR/k8s"
 NAMESPACE="oj"
-CLUSTER_NAME="kind"
 
 echo "========================================="
 echo "Deploying Online Judge Platform"
-echo "Repository: $ROOT_DIR"
-echo "K8s Dir:    $K8S_DIR"
+echo "Environment: Production (k3s)"
+echo "Repository:  $ROOT_DIR"
+echo "K8s Dir:     $K8S_DIR"
 echo "========================================="
 
 cd "$ROOT_DIR"
 
 echo
-echo "[0/8] Loading execution images into Kind..."
-
-docker context use default
-docker pull gcc:15
-docker pull python:3.9
-docker pull node:18
-docker pull eclipse-temurin:17-jdk
-
-for node in kind-control-plane kind-worker kind-worker2
-do
-  docker exec "$node" sctr -n k8s.io images pull docker.io/library/gcc:15
-  docker exec "$node" sctr -n k8s.io images pull docker.io/library/python:3.9
-  docker exec "$node" sctr -n k8s.io images pull docker.io/library/node:18
-  docker exec "$node" sctr -n k8s.io images pull docker.io/library/eclipse-temurin:17-jdk
-done
-
-echo
-echo "[1/7] Namespace, Secrets, RBAC"
+echo "[1/8] Namespace, Secrets, RBAC"
 
 kubectl apply -f "$K8S_DIR/namespace.yml"
 kubectl apply -f "$K8S_DIR/secrets.yml"
 kubectl apply -f "$K8S_DIR/rbac.yaml"
 
 echo
-echo "[2/7] Redis"
+echo "[2/8] Redis"
 
 kubectl apply -f "$K8S_DIR/redis/"
 
 echo
-echo "[3/7] PostgreSQL"
+echo "[3/8] PostgreSQL"
 
 kubectl apply -f "$K8S_DIR/postgres/postgres-pv.yml"
 kubectl apply -f "$K8S_DIR/postgres/postgres-pvc.yml"
@@ -55,23 +38,28 @@ kubectl apply -f "$K8S_DIR/postgres/postgres-deployment.yml"
 echo
 echo "Waiting for PostgreSQL..."
 
-kubectl rollout status deployment/postgres-deployment --timeout=300s -n $NAMESPACE
+kubectl rollout status \
+  deployment/postgres-deployment \
+  --timeout=300s \
+  -n "$NAMESPACE"
 
 echo
-echo "[4/7] Database Migration"
+echo "[4/8] Database Migration"
 
 kubectl delete job prisma-migrate-seed \
-  --ignore-not-found=true -n $NAMESPACE
+  --ignore-not-found=true \
+  -n "$NAMESPACE"
 
 kubectl apply -f "$K8S_DIR/postgres/postgres-migrate-seed.yml"
 
 kubectl wait \
   --for=condition=complete \
   job/prisma-migrate-seed \
-  --timeout=300s -n $NAMESPACE
+  --timeout=300s \
+  -n "$NAMESPACE"
 
 echo
-echo "[5/7] Backend Services"
+echo "[5/8] Backend Services"
 
 BACKEND_SERVICES=(
   auth
@@ -90,17 +78,17 @@ do
 done
 
 echo
-echo "[6/7] API Gateway"
+echo "[6/8] API Gateway"
 
 kubectl apply -f "$K8S_DIR/apps/api-gateway/"
 
 echo
-echo "[7/7] Client"
+echo "[7/8] Client"
 
 kubectl apply -f "$K8S_DIR/apps/client/"
 
 echo
-echo "Waiting for deployments..."
+echo "[8/8] Waiting for deployments"
 
 DEPLOYMENTS=(
   auth-deployment
@@ -116,23 +104,32 @@ DEPLOYMENTS=(
 
 for deployment in "${DEPLOYMENTS[@]}"
 do
-  echo "Waiting for deployment/$deployment ..."
-  kubectl rollout status deployment/"$deployment" --timeout=300s -n $NAMESPACE
+  echo "Waiting for deployment/$deployment..."
+
+  kubectl rollout status \
+    deployment/"$deployment" \
+    --timeout=300s \
+    -n "$NAMESPACE"
 done
 
 echo
 echo "========================================="
-echo "Deployment Successful"
+echo "Production Deployment Successful"
 echo "========================================="
 
 echo
 echo "Pods"
-kubectl get pods -o wide -n $NAMESPACE
+kubectl get pods -o wide -n "$NAMESPACE"
 
 echo
 echo "Services"
-kubectl get svc -n $NAMESPACE
+kubectl get svc -n "$NAMESPACE"
 
 echo
 echo "Deployments"
-kubectl get deployments -n $NAMESPACE
+kubectl get deployments -n "$NAMESPACE"
+
+echo
+echo "========================================="
+echo "Production deployment complete."
+echo "========================================="
