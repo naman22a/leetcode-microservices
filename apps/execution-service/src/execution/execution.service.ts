@@ -348,18 +348,6 @@ LEETCODE_EOF
             python: 'py',
             java: 'java',
             javascript: 'js',
-            go: 'go',
-            rust: 'rs',
-            csharp: 'cs',
-            ruby: 'rb',
-            swift: 'swift',
-            php: 'php',
-            kotlin: 'kt',
-            dart: 'dart',
-            r: 'R',
-            perl: 'pl',
-            typescript: 'ts',
-            haskell: 'hs',
         };
         return extensions[language] || 'txt';
     }

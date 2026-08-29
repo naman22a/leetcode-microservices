@@ -26,6 +26,14 @@ function Login() {
         mutationFn: api.auth.login,
     });
 
+    const guestForm = useForm<z.infer<typeof loginSchema>>({
+        resolver: zodResolver(loginSchema),
+        defaultValues: {
+            email: 'test@gmail.com',
+            password: 'test123',
+        },
+    });
+
     const form = useForm<z.infer<typeof loginSchema>>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
@@ -116,9 +124,10 @@ function Login() {
             </Card>
 
             <div className="mt-5">
-                <h3 className="mb-2 text-2xl font-semibold">Guest Login</h3>
-                <p>Email: test@gmail.com</p>
-                <p>Password: test123</p>
+                <form id="guest-login-form" onSubmit={guestForm.handleSubmit(onSubmit)}></form>
+                <Button type="submit" form="guest-login-form">
+                    Guest Login
+                </Button>
             </div>
         </div>
     );

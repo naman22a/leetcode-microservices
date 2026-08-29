@@ -15,21 +15,4 @@ export const setAccessToken = (token: string) => {
     connectSocket();
 };
 
-export const languages = [
-    'cpp',
-    'python',
-    'javascript',
-    'java',
-    'go',
-    'rust',
-    'csharp',
-    'ruby',
-    'swift',
-    'php',
-    'kotlin',
-    'dart',
-    'R',
-    'perl',
-    'typescript',
-    'haskell',
-];
+export const languages = ['cpp', 'python', 'javascript', 'java'];
